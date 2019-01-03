@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    canvas {
+      display: block;
+      margin: 20px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+
+  <script>
+    const RULES = '00000101000001100001010110000111000001110000010000010101010101110110010001110111000001010000000101111101111111111011011101111111';
+
+    const getNeighbors = (i, radius, cells) => {
+      let rightAndMiddle = cells.slice(i, i + radius + 1);
+      if (rightAndMiddle.length < radius + 1) {
+        rightAndMiddle += cells.slice(0, radius + 1 - rightAndMiddle.length);
+      }
+
+      let left = '';
+      if (i < radius) {
+        left = cells.slice(i - radius) + cells.slice(0, i);
+      } else {
+        left = cells.slice(i - radius, i);
+      }
+
+      return left + rightAndMiddle;
+    }
+
+    function iteration(cells, radius, rules) {
+      if (rules.length !== Math.pow(2, radius * 2 + 1)) {
+        throw new Error('the length of rules is not matching radius!');
+      }
+
+      const newCells = [];
+      for (let i = 0; i < cells.length; i++) {
+        const neighbors = getNeighbors(i, radius, cells);
+        const rulesIndex = parseInt(neighbors, 2);
+        const newState = rules[rulesIndex];
+        newCells[i] = newState;
+      }
+
+      return newCells.join('');
+    }
+  </script>
+  <script>
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+
+    const width = 999;
+    const height = 1000;
+    canvas.width = width;
+    canvas.height = height;
+
+    var myImageData = ctx.createImageData(width, height);
+
+    let cells = ([...new Array(width)]).map(() => Math.floor(Math.random() * 2)).join('');
+
+    let iterationCount = 0;
+
+    const render = (cells) => {
+      const posStart = width * 4 * iterationCount;
+      for (let i = 0; i < cells.length; i++) {
+        const state = cells[i];
+        const color = state === '1' ? 0 : 255;
+        myImageData.data[posStart + i * 4] = color;
+        myImageData.data[posStart + i * 4 + 1] = color;
+        myImageData.data[posStart + i * 4 + 2] = color;
+        myImageData.data[posStart + i * 4 + 3] = 255;
+      }
+      ctx.putImageData(myImageData, 0, 0);
+    }
+
+    for (let i = 0; i < height; i++) {
+      setTimeout(() => {
+        render(cells);
+        cells = iteration(cells, 3, RULES);
+        iterationCount++;
+      }, 50)
+    }
+  </script>
+</body>
+</html>
