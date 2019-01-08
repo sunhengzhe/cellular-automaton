@@ -14,12 +14,10 @@ const getNeighbors = (i, radius, cells) => {
   }
 
   return left + rightAndMiddle;
-}
+};
 
-function iteration(cells, radius, rules) {
-  if (rules.length !== Math.pow(2, radius * 2 + 1)) {
-    throw new Error('the length of rules is not matching radius!');
-  }
+function iteration(cells, rules) {
+  const radius = (Math.log2(rules.length) - 1) / 2;
 
   const newCells = [];
   for (let i = 0; i < cells.length; i++) {
@@ -34,5 +32,5 @@ function iteration(cells, radius, rules) {
 
 module.exports = {
   getNeighbors,
-  iteration
-}
+  iteration,
+};
